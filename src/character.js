@@ -5,6 +5,9 @@
 // kuping/ekor/taring). Dunianya sama-sama nostalgia gaming: kereta malam,
 // handheld, memory card — tapi karakternya orisinal.
 //
+// v1.1: bentuk dibulatkan — kepala chibi lebih besar (radius 0.12), badan
+// bola gepeng, kantong lunak, penutup telinga + antena. Rig tidak berubah.
+//
 // RIG — semua sendi adalah THREE.Group, rotasi dalam radian, sumbu:
 //   x = maju/mundur (pitch), y = putar kiri/kanan (yaw), z = miring (roll)
 // Setiap mesh anggota tubuh digantung di bawah grup sendinya, jadi rotasi
@@ -178,31 +181,41 @@ export function buildCharacter() {
   };
 
   // Pinggul — pangkal seluruh tubuh. Kaki 0.62 di bawah pinggul.
+  // Celana pendek: kotak super-bulat (radius hampir setengah tinggi).
   const hips = joint('hips', group, 0, 0.62, 0);
-  hips.add(mesh(new RoundedBoxGeometry(0.34, 0.2, 0.26, 3, 0.06), mat.shorts, 0, 0, 0));
+  hips.add(mesh(new RoundedBoxGeometry(0.34, 0.2, 0.26, 4, 0.09), mat.shorts, 0, 0, 0));
 
-  // Badan (hoodie) + tudung di belakang leher.
+  // Badan (hoodie): bola gepeng, bukan kotak — perut membulat.
   const spine = joint('spine', hips, 0, 0.18, 0);
-  spine.add(mesh(new RoundedBoxGeometry(0.5, 0.46, 0.32, 4, 0.1), mat.hoodie, 0, 0.2, 0));
-  spine.add(mesh(new RoundedBoxGeometry(0.34, 0.22, 0.12, 3, 0.05), mat.hoodie, 0, 0.42, -0.16));
-  // Kantong hoodie.
-  spine.add(mesh(new RoundedBoxGeometry(0.3, 0.16, 0.05, 2, 0.02), mat.hoodie, 0, 0.06, 0.17));
+  const torso = mesh(new THREE.SphereGeometry(0.28, 28, 20), mat.hoodie, 0, 0.2, 0);
+  torso.scale.set(1.0, 0.85, 0.62);
+  spine.add(torso);
+  // Tudung di belakang leher.
+  spine.add(mesh(new RoundedBoxGeometry(0.34, 0.2, 0.12, 3, 0.055), mat.hoodie, 0, 0.36, -0.2));
+  // Kantong hoodie: kantong lunak (bola gepeng menempel di perut).
+  const pocket = mesh(new THREE.SphereGeometry(0.13, 20, 14), mat.hoodie, 0, 0.06, 0.13);
+  pocket.scale.set(1.3, 0.65, 0.45);
+  spine.add(pocket);
 
-  // Kepala: bezel konsol saku + layar + tombol samping.
+  // Kepala: bezel konsol saku, chibi — lebih besar dan jauh lebih bulat.
+  // Radius 0.12 mentok: layar 0.36x0.27 pas muat di muka datarnya.
   const head = joint('head', spine, 0, 0.5, 0);
-  head.add(mesh(new RoundedBoxGeometry(0.54, 0.44, 0.3, 4, 0.08), mat.bezel, 0, 0.12, 0));
+  head.add(mesh(new RoundedBoxGeometry(0.62, 0.52, 0.34, 5, 0.12), mat.bezel, 0, 0.14, 0));
   const screen = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.42, 0.32),
+    new THREE.PlaneGeometry(0.36, 0.27),
     new THREE.MeshBasicMaterial({ map: face.texture })
   );
-  screen.position.set(0, 0.13, 0.156);
+  screen.position.set(0, 0.15, 0.176);
   head.add(screen);
-  const sideBtn = mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.03, 16), mat.button, 0.28, 0.12, 0);
-  sideBtn.rotation.z = Math.PI / 2;
-  head.add(sideBtn);
+  // Penutup telinga bulat di kedua sisi (seperti headphone).
+  head.add(mesh(new THREE.SphereGeometry(0.05, 16, 12), mat.metal, -0.31, 0.14, 0));
+  head.add(mesh(new THREE.SphereGeometry(0.05, 16, 12), mat.metal, 0.31, 0.14, 0));
+  // Antena + bola ujung (ikut warna aksen outfit).
+  head.add(mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.1, 8), mat.metal, 0.18, 0.44, 0));
+  head.add(mesh(new THREE.SphereGeometry(0.025, 12, 10), mat.handheld, 0.18, 0.5, 0));
   // Speaker kecil di bawah layar.
   for (let i = 0; i < 3; i++) {
-    const dot = mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.02, 8), mat.button, -0.2 + i * 0.03, -0.06, 0.15);
+    const dot = mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.02, 8), mat.button, -0.2 + i * 0.03, -0.08, 0.17);
     dot.rotation.x = Math.PI / 2;
     head.add(dot);
   }
@@ -224,7 +237,7 @@ export function buildCharacter() {
   // Handheld menempel di tangan kiri: badan + layar + tombol.
   const handheld = new THREE.Group();
   handheld.name = 'handheld';
-  handheld.add(mesh(new RoundedBoxGeometry(0.24, 0.32, 0.05, 3, 0.02), mat.handheld, 0, 0, 0));
+  handheld.add(mesh(new RoundedBoxGeometry(0.24, 0.32, 0.05, 3, 0.025), mat.handheld, 0, 0, 0));
   const hhScreen = new THREE.Mesh(
     new THREE.PlaneGeometry(0.17, 0.13),
     new THREE.MeshBasicMaterial({ color: 0x0e2a3a })
@@ -232,7 +245,7 @@ export function buildCharacter() {
   hhScreen.position.set(0, 0.05, 0.028);
   handheld.add(hhScreen);
   // D-pad + tombol A/B.
-  handheld.add(mesh(new THREE.BoxGeometry(0.05, 0.05, 0.02), mat.button, -0.07, -0.09, 0.028));
+  handheld.add(mesh(new RoundedBoxGeometry(0.05, 0.05, 0.02, 2, 0.008), mat.button, -0.07, -0.09, 0.028));
   const btnA = mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.02, 12), mat.button, 0.07, -0.08, 0.028);
   btnA.rotation.x = Math.PI / 2;
   handheld.add(btnA);
@@ -249,8 +262,8 @@ export function buildCharacter() {
     knee.add(mesh(new THREE.CapsuleGeometry(0.065, 0.18, 4, 12), mat.frame, 0, -0.13, 0));
     const shoe = new THREE.Group();
     shoe.position.set(0, -0.3, 0.02);
-    shoe.add(mesh(new RoundedBoxGeometry(0.16, 0.11, 0.3, 3, 0.04), mat.shoe, 0, 0, 0.03));
-    shoe.add(mesh(new THREE.BoxGeometry(0.17, 0.04, 0.31), mat.sole, 0, -0.06, 0.03));
+    shoe.add(mesh(new RoundedBoxGeometry(0.16, 0.11, 0.3, 4, 0.05), mat.shoe, 0, 0, 0.03));
+    shoe.add(mesh(new RoundedBoxGeometry(0.17, 0.04, 0.31, 2, 0.018), mat.sole, 0, -0.06, 0.03));
     knee.add(shoe);
     return { hip, knee };
   };
