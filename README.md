@@ -3,9 +3,9 @@
 REMO adalah karakter 3D original yang dibangun murni dari kode (Three.js,
 tanpa file model eksternal). Dibuat sebagai karakter "player" untuk konten
 fan bertema dunia NULLS — tapi desainnya orisinal: robot kecil berkepala
-konsol saku dengan wajah layar pixel. **Bukan karakter NULLS, bukan tiruan
-karakter NULLS.** Three.js di-vendor lokal di `vendor/` (v0.160.0) — tidak
-butuh CDN, jalan offline, dan versinya ke-pin di repo.
+helm bulat dengan wajah layar melengkung (visor). **Bukan karakter NULLS,
+bukan tiruan karakter NULLS.** Three.js di-vendor lokal di `vendor/`
+(v0.160.0) — tidak butuh CDN, jalan offline, dan versinya ke-pin di repo.
 
 Kenapa dari kode, bukan dari gambar/AI:
 - **Konsisten & deterministik** — hasil yang sama setiap kali dibuka.
